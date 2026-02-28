@@ -5,14 +5,17 @@ class AppTheme {
   // Brand Colors
   static const Color primaryLight = Color(0xFF10B981); // Emerald 600
   static const Color primaryDark = Color(0xFF047857); // Emerald 700
+  static const Color voiceAccent = Color(
+    0xFF22C55E,
+  ); // Green — mic/listening UI
 
-  static const Color highPriority = Color(0xFFE53935); // Red (HSL 0, 72%, 51%)
-  static const Color mediumPriority = Color(
-    0xFFF59E0B,
-  ); // Amber (HSL 38, 92%, 50%)
-  static const Color lowPriority = Color(
-    0xFF3B82F6,
-  ); // Blue (HSL 217, 91%, 60%)
+  static const Color highPriority = Color(0xFFEF4444); // Red
+  static const Color mediumPriority = Color(0xFFF59E0B); // Amber
+  static const Color lowPriority = Color(0xFF3B82F6); // Blue
+
+  static const Color urgentColor = Color(0xFFEF4444); // Overdue / <1 day left
+  static const Color warningColor = Color(0xFFF59E0B); // 1 day left
+  static const Color mutedColor = Color(0xFF94A3B8); // Neutral deadline
 
   // Light Mode Colors
   static const Color backgroundLight = Colors.white;

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../models/task.dart';
+import '../theme/app_theme.dart';
+import 'app_widgets.dart';
 
 class TaskCard extends StatefulWidget {
   final Task task;
@@ -27,39 +29,149 @@ class TaskCard extends StatefulWidget {
 }
 
 class _TaskCardState extends State<TaskCard> {
-  Widget _buildTimeLeft(DateTime deadline) {
-    final now = DateTime.now();
-    final diff = deadline.difference(now);
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final task = widget.task;
 
-    Color color = const Color(0xFF94A3B8); // Slate 400
-    String text = '';
+    return GestureDetector(
+      onTap: widget.onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: cs.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: cs.onSurface.withValues(alpha: 0.1)),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Checkbox
+            GestureDetector(
+              onTap: () => widget.onToggle(!task.completed),
+              child: Container(
+                width: 22,
+                height: 22,
+                margin: const EdgeInsets.only(top: 2),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: task.completed
+                        ? AppTheme.primaryLight
+                        : cs.onSurface.withValues(alpha: 0.4),
+                    width: 2,
+                  ),
+                  color: task.completed
+                      ? AppTheme.primaryLight
+                      : Colors.transparent,
+                ),
+                child: task.completed
+                    ? const Icon(Icons.check, size: 14, color: Colors.white)
+                    : null,
+              ),
+            ),
+            const SizedBox(width: 16),
 
-    if (diff.isNegative) {
-      color = const Color(0xFFEF4444); // Red
-      text = 'Overdue';
-    } else if (diff.inDays == 0) {
-      color = const Color(0xFFEF4444); // Red
-      final hours = diff.inHours;
-      if (hours > 0) {
-        text = '${hours}h left';
-      } else {
-        text = '${diff.inMinutes}m left';
-      }
-    } else if (diff.inDays == 1) {
-      color = const Color(0xFFF59E0B); // Orange
-      text = '1d left';
-    } else {
-      color = const Color(0xFF94A3B8); // Muted
-      text = '${diff.inDays}d left';
-    }
+            // Content
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          task.title,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: cs.onSurface,
+                            decoration: task.completed
+                                ? TextDecoration.lineThrough
+                                : null,
+                          ),
+                        ),
+                      ),
+                      // Action icons
+                      _ActionIcon(
+                        icon: LucideIcons.clock,
+                        onTap: widget.onFocus,
+                      ),
+                      const SizedBox(width: 14),
+                      _ActionIcon(
+                        icon: LucideIcons.edit3,
+                        onTap: widget.onEdit,
+                      ),
+                      const SizedBox(width: 14),
+                      _ActionIcon(
+                        icon: LucideIcons.trash2,
+                        onTap: widget.onDelete,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      AppWidgets.chip(
+                        context: context,
+                        icon: LucideIcons.tag,
+                        label: task.category,
+                      ),
+                      if (task.deadline != null) ...[
+                        const SizedBox(width: 10),
+                        _DeadlineChip(deadline: task.deadline!),
+                      ],
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
+/// Tiny icon button used in the task card action row.
+class _ActionIcon extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+  const _ActionIcon({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Icon(
+        icon,
+        size: 18,
+        color: Theme.of(context).colorScheme.onSurface,
+      ),
+    );
+  }
+}
+
+/// Shows time-remaining for a task deadline with semantic colour.
+class _DeadlineChip extends StatelessWidget {
+  final DateTime deadline;
+  const _DeadlineChip({required this.deadline});
+
+  @override
+  Widget build(BuildContext context) {
+    final diff = deadline.difference(DateTime.now());
+    final color = AppWidgets.deadlineColor(diff);
+    final label = AppWidgets.deadlineLabel(diff);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(LucideIcons.clock, size: 14, color: color),
         const SizedBox(width: 4),
         Text(
-          text,
+          label,
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w500,
@@ -67,156 +179,6 @@ class _TaskCardState extends State<TaskCard> {
           ),
         ),
       ],
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: widget.onTap,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.1),
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                GestureDetector(
-                  onTap: () => widget.onToggle(!widget.task.completed),
-                  child: Container(
-                    width: 22,
-                    height: 22,
-                    margin: const EdgeInsets.only(top: 2),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(
-                        color: widget.task.completed
-                            ? const Color(0xFF10B981)
-                            : const Color(0xFF334155),
-                        width: 2,
-                      ),
-                      color: widget.task.completed
-                          ? const Color(0xFF10B981)
-                          : Colors.transparent,
-                    ),
-                    child: widget.task.completed
-                        ? const Icon(Icons.check, size: 14, color: Colors.white)
-                        : null,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              widget.task.title,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: widget.task.completed
-                                    ? Theme.of(context).colorScheme.onSurface
-                                    : Theme.of(context).colorScheme.onSurface,
-                              ),
-                            ),
-                          ),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              GestureDetector(
-                                onTap: widget.onFocus,
-                                child: Icon(
-                                  LucideIcons.clock,
-                                  size: 18,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface,
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              GestureDetector(
-                                onTap: widget.onEdit,
-                                child: Icon(
-                                  LucideIcons.edit3,
-                                  size: 18,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface,
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              GestureDetector(
-                                onTap: widget.onDelete,
-                                child: Icon(
-                                  LucideIcons.trash2,
-                                  size: 18,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.10),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withValues(alpha: 0.15),
-                                width: 1,
-                              ),
-                            ),
-                            child: Text(
-                              widget.task.category,
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ),
-                            ),
-                          ),
-                          if (widget.task.deadline != null) ...[
-                            const SizedBox(width: 12),
-                            _buildTimeLeft(widget.task.deadline!),
-                          ],
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

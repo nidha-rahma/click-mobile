@@ -41,7 +41,7 @@ class SupabaseService {
   Future<Task> toggleTask(String id, bool completed) async {
     final updateData = {
       'completed': completed,
-      'completedAt': completed ? DateTime.now().toIso8601String() : null,
+      'completed_at': completed ? DateTime.now().toIso8601String() : null,
     };
     final response = await _client
         .from('tasks')

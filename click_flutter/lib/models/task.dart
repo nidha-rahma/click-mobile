@@ -114,12 +114,8 @@ class Task {
   }
 
   Map<String, dynamic> toDbJson() {
-    // Exclude subtasks when pushing to the main tasks table in Supabase.
-    // If you need to store subtasks, they should typically go to a related table
-    // or a correctly typed JSONB column. For now, we omit it to prevent insert errors.
     return {
       'id': id,
-      // 'user_id' is omitted to let Supabase Auth handle it via default auth.uid()
       'title': title,
       'description': description,
       'priority': priority.name,
@@ -169,9 +165,6 @@ class AppConstants {
     'Work',
     'Study',
     'Personal',
-    'Health',
-    'Finance',
-    'Errands',
     'Other',
   ];
 }

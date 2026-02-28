@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import '../theme/app_theme.dart';
 
 class StatsCard extends StatelessWidget {
   final String title;
@@ -98,7 +99,7 @@ class StatsBar extends StatelessWidget {
               value: "$doneToday/$totalToday",
               icon: const Icon(
                 LucideIcons.checkCircle2,
-                color: Color(0xFF10B981),
+                color: AppTheme.primaryLight,
                 size: 20,
               ),
             ),
@@ -107,7 +108,7 @@ class StatsBar extends StatelessWidget {
               value: "$totalPending",
               icon: const Icon(
                 LucideIcons.clock,
-                color: Color(0xFFF59E0B),
+                color: AppTheme.warningColor,
                 size: 20,
               ),
             ),
@@ -121,7 +122,7 @@ class StatsBar extends StatelessWidget {
               value: "$doneThisWeek/$totalThisWeek",
               icon: const Icon(
                 LucideIcons.trendingUp,
-                color: Color(0xFF10B981),
+                color: AppTheme.primaryLight,
                 size: 20,
               ),
             ),
@@ -130,7 +131,7 @@ class StatsBar extends StatelessWidget {
               value: "${streak}d",
               icon: const Icon(
                 LucideIcons.flame,
-                color: Color(0xFFEF4444),
+                color: AppTheme.urgentColor,
                 size: 20,
               ),
             ),

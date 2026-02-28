@@ -6,7 +6,7 @@ import '../services/supabase_service.dart';
 final supabaseServiceProvider = Provider((ref) => supabaseService);
 
 class TaskNotifier extends AsyncNotifier<List<Task>> {
-  late final SupabaseService _service;
+  late SupabaseService _service;
 
   @override
   Future<List<Task>> build() async {
@@ -15,14 +15,12 @@ class TaskNotifier extends AsyncNotifier<List<Task>> {
   }
 
   Future<void> addTask(Task task) async {
-    // Optimistic UI update
+    // Optimistic UI update: show task immediately
     update((tasks) => [...tasks, task]);
     try {
-      final newTask = await _service.addTask(task);
-      // Replace with DB record if successful
-      update(
-        (tasks) => tasks.map((t) => t.id == task.id ? newTask : t).toList(),
-      );
+      await _service.addTask(task);
+      // Re-fetch so the UI shows the authoritative DB record
+      ref.invalidateSelf();
     } catch (e) {
       debugPrint('Failed to add task to DB (kept locally): $e');
     }
@@ -36,6 +34,7 @@ class TaskNotifier extends AsyncNotifier<List<Task>> {
     );
     try {
       await _service.updateTask(updatedTask);
+      ref.invalidateSelf();
     } catch (e) {
       debugPrint('Failed to update task in DB: $e');
     }

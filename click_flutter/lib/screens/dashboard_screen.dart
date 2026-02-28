@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-
 import '../models/task.dart';
 import '../providers/task_provider.dart';
+import '../providers/theme_provider.dart';
 import '../widgets/pomodoro_timer.dart';
 import '../widgets/stats_bar.dart';
 import '../widgets/task_bottom_sheet.dart';
@@ -104,10 +104,17 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(
-              LucideIcons.sun,
-            ), // Static for now, could toggle theme
-            onPressed: () {},
+            icon: Icon(
+              Theme.of(context).brightness == Brightness.light
+                  ? LucideIcons.moon
+                  : LucideIcons.sun,
+            ),
+            onPressed: () {
+              final isLight = Theme.of(context).brightness == Brightness.light;
+              ref
+                  .read(themeProvider.notifier)
+                  .setThemeMode(isLight ? ThemeMode.dark : ThemeMode.light);
+            },
           ),
         ],
       ),
@@ -170,29 +177,81 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           taskId: _focusedTaskId!,
                         ),
                       ],
-                      const SizedBox(height: 16),
-                      SegmentedButton<TaskFilter>(
-                        segments: const [
-                          ButtonSegment(
-                            value: TaskFilter.today,
-                            label: Text('Today'),
+                      const SizedBox(height: 24),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.1),
                           ),
-                          ButtonSegment(
-                            value: TaskFilter.thisWeek,
-                            label: Text('This Week'),
-                          ),
-                          ButtonSegment(
-                            value: TaskFilter.all,
-                            label: Text('All Tasks'),
-                          ),
-                        ],
-                        selected: <TaskFilter>{_currentFilter},
-                        onSelectionChanged: (Set<TaskFilter> newSelection) {
-                          setState(() {
-                            _currentFilter = newSelection.first;
-                          });
-                        },
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _buildFilterButton(
+                              TaskFilter.today,
+                              'Today',
+                              LucideIcons.sun,
+                            ),
+                            _buildFilterButton(
+                              TaskFilter.thisWeek,
+                              'This Week',
+                              LucideIcons.calendar,
+                            ),
+                            _buildFilterButton(
+                              TaskFilter.all,
+                              'All Tasks',
+                              LucideIcons.inbox,
+                            ),
+                          ],
+                        ),
                       ),
+                      if (allTasks.isEmpty) ...[
+                        const SizedBox(height: 80),
+                        Center(
+                          child: Column(
+                            children: [
+                              Icon(
+                                LucideIcons.listTodo,
+                                size: 48,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant
+                                    .withValues(alpha: 0.5),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                "No tasks yet",
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                                    ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                "Tap + to create your first task",
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant
+                                          .withValues(alpha: 0.7),
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -302,6 +361,45 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         final updatedTask = task.copyWith(subtasks: updatedSubtasks);
         ref.read(taskProvider.notifier).updateTask(updatedTask);
       },
+    );
+  }
+
+  Widget _buildFilterButton(TaskFilter filter, String label, IconData icon) {
+    final isSelected = _currentFilter == filter;
+    return GestureDetector(
+      onTap: () => setState(() => _currentFilter = filter),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: isSelected
+                  ? Theme.of(context).colorScheme.onSurface
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected
+                    ? Theme.of(context).colorScheme.onSurface
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

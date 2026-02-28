@@ -1,0 +1,5 @@
+[info] Don't invoke 'print' in production code (C:\Users\HP\dev\click-mobile\click_flutter\lib\providers\task_provider.dart:22:7)
+[info] Don't invoke 'print' in production code (C:\Users\HP\dev\click-mobile\click_flutter\lib\providers\task_provider.dart:31:7)
+[info] Don't invoke 'print' in production code (C:\Users\HP\dev\click-mobile\click_flutter\lib\providers\task_provider.dart:40:7)
+[info] Don't invoke 'print' in production code (C:\Users\HP\dev\click-mobile\click_flutter\lib\providers\task_provider.dart:51:7)
+[info] Don't invoke 'print' in production code (C:\Users\HP\dev\click-mobile\click_flutter\lib\services\supabase_service.dart:19:7)

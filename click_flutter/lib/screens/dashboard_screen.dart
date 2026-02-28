@@ -8,6 +8,7 @@ import '../widgets/pomodoro_timer.dart';
 import '../widgets/stats_bar.dart';
 import '../widgets/task_bottom_sheet.dart';
 import '../widgets/task_card.dart';
+import '../widgets/task_details.dart';
 
 enum TaskFilter { today, thisWeek, all }
 
@@ -44,6 +45,17 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             }
           },
         );
+      },
+    );
+  }
+
+  void _showTaskDetails(Task task) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return TaskDetails(task: task);
       },
     );
   }
@@ -261,7 +273,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 ),
               ),
               if (pendingTasks.isNotEmpty) ...[
-                
                 SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) => _buildTaskCard(pendingTasks[index]),
@@ -308,7 +319,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           width: 60,
           height: 60,
           decoration: BoxDecoration(
-            shape: BoxShape.circle,
+            borderRadius: BorderRadius.circular(12),
             gradient: Theme.of(context).brightness == Brightness.light
                 ? const LinearGradient(
                     colors: [Color(0xFF10B981), Color(0xFF047857)],
@@ -332,6 +343,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ref.read(taskProvider.notifier).toggleTask(task.id, val);
         }
       },
+      onTap: () => _showTaskDetails(task),
       onFocus: () {
         setState(() {
           _focusedTaskId = _focusedTaskId == task.id ? null : task.id;

@@ -139,7 +139,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
           final totalPending = allTasks.where((t) => !t.completed).length;
 
-          // Simple mock streak calculation
           final streak = doneToday > 0 ? 1 : 0;
 
           return CustomScrollView(
@@ -175,6 +174,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         PomodoroTimer(
                           key: ValueKey(_focusedTaskId),
                           taskId: _focusedTaskId!,
+                          onClose: () {
+                            setState(() {
+                              _focusedTaskId = null;
+                            });
+                          },
                         ),
                       ],
                       const SizedBox(height: 24),
@@ -257,21 +261,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 ),
               ),
               if (pendingTasks.isNotEmpty) ...[
-                const SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 8.0,
-                    ),
-                    child: Text(
-                      'Pending',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-                ),
+                
                 SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) => _buildTaskCard(pendingTasks[index]),

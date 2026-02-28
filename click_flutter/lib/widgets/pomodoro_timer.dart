@@ -4,8 +4,9 @@ import 'package:lucide_icons/lucide_icons.dart';
 
 class PomodoroTimer extends StatefulWidget {
   final String taskId;
+  final VoidCallback? onClose;
 
-  const PomodoroTimer({super.key, required this.taskId});
+  const PomodoroTimer({super.key, required this.taskId, this.onClose});
 
   @override
   State<PomodoroTimer> createState() => _PomodoroTimerState();
@@ -67,7 +68,25 @@ class _PomodoroTimerState extends State<PomodoroTimer> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Text("Focus Timer", style: Theme.of(context).textTheme.titleLarge),
+            Row(
+              children: [
+                Text(
+                  "Focus Timer",
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(LucideIcons.x),
+                  iconSize: 24,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  onPressed: () {
+                    if (widget.onClose != null) {
+                      widget.onClose!();
+                    }
+                  },
+                ),
+              ],
+            ),
             const SizedBox(height: 16),
             Stack(
               alignment: Alignment.center,

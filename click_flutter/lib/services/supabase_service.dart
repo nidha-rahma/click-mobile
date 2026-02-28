@@ -5,18 +5,11 @@ import '../models/task.dart';
 class SupabaseService {
   final SupabaseClient _client = Supabase.instance.client;
 
-  // Simulate delays or map to actual Supabase tables
-  // Note: For a true migration, you would use _client.from('tasks')...
-  // Here we are setting up the structure based on the prompt's instruction to
-  // "Implement the Supabase Repository simulating the React Query hooks"
-  // Assuming a 'tasks' table exists matching the Task model.
-
   Future<List<Task>> getTasks() async {
     try {
       final response = await _client.from('tasks').select();
       return (response as List).map((json) => Task.fromJson(json)).toList();
     } catch (e) {
-      // Return empty or throw based on app needs. For simulated dev, we might return empty.
       debugPrint('Error fetching tasks: $e');
       return [];
     }

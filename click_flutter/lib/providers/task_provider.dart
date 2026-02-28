@@ -15,41 +15,59 @@ class TaskNotifier extends AsyncNotifier<List<Task>> {
   }
 
   Future<void> addTask(Task task) async {
+    // Optimistic UI update
+    update((tasks) => [...tasks, task]);
     try {
       final newTask = await _service.addTask(task);
-      update((tasks) => [...tasks, newTask]);
+      // Replace with DB record if successful
+      update(
+        (tasks) => tasks.map((t) => t.id == task.id ? newTask : t).toList(),
+      );
     } catch (e) {
-      // Handle error (e.g., show snackbar in UI)
-      debugPrint('Failed to add task: $e');
+      debugPrint('Failed to add task to DB (kept locally): $e');
     }
   }
 
   Future<void> updateTask(Task updatedTask) async {
+    // Optimistic UI update
+    update(
+      (tasks) =>
+          tasks.map((t) => t.id == updatedTask.id ? updatedTask : t).toList(),
+    );
     try {
-      final task = await _service.updateTask(updatedTask);
-      update((tasks) => tasks.map((t) => t.id == task.id ? task : t).toList());
+      await _service.updateTask(updatedTask);
     } catch (e) {
-      debugPrint('Failed to update task: $e');
+      debugPrint('Failed to update task in DB: $e');
     }
   }
 
   Future<void> deleteTask(String id) async {
+    // Optimistic UI update
+    update((tasks) => tasks.where((t) => t.id != id).toList());
     try {
       await _service.deleteTask(id);
-      update((tasks) => tasks.where((t) => t.id != id).toList());
     } catch (e) {
-      debugPrint('Failed to delete task: $e');
+      debugPrint('Failed to delete task from DB: $e');
     }
   }
 
   Future<void> toggleTask(String id, bool completed) async {
+    // Optimistic UI update
+    update(
+      (tasks) => tasks.map((t) {
+        if (t.id == id) {
+          return t.copyWith(
+            completed: completed,
+            completedAt: completed ? DateTime.now() : null,
+          );
+        }
+        return t;
+      }).toList(),
+    );
     try {
-      final updatedTask = await _service.toggleTask(id, completed);
-      update(
-        (tasks) => tasks.map((t) => t.id == id ? updatedTask : t).toList(),
-      );
+      await _service.toggleTask(id, completed);
     } catch (e) {
-      debugPrint('Failed to toggle task: $e');
+      debugPrint('Failed to toggle task in DB: $e');
     }
   }
 }

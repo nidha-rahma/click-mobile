@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:uuid/uuid.dart';
 import '../models/task.dart';
 
 class TaskBottomSheet extends StatefulWidget {
@@ -19,7 +20,7 @@ class _TaskBottomSheetState extends State<TaskBottomSheet> {
   final _notesController = TextEditingController();
 
   Priority _selectedPriority = Priority.medium;
-  String _selectedCategory = 'Other';
+  String _selectedCategory = 'Study';
   DateTime? _selectedDate;
 
   @override
@@ -84,9 +85,7 @@ class _TaskBottomSheetState extends State<TaskBottomSheet> {
     }
 
     final task = Task(
-      id:
-          widget.existingTask?.id ??
-          DateTime.now().millisecondsSinceEpoch.toString(),
+      id: widget.existingTask?.id ?? const Uuid().v4(),
       title: _titleController.text.trim(),
       description: _descController.text.trim(),
       notes: _notesController.text.trim(),

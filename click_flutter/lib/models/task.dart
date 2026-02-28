@@ -84,8 +84,14 @@ class Task {
       completed: json['completed'] as bool? ?? false,
       completedAt: json['completedAt'] != null
           ? DateTime.parse(json['completedAt'] as String)
+          : json['completed_at'] != null
+          ? DateTime.parse(json['completed_at'] as String)
           : null,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'] as String)
+          : json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
       notes: json['notes'] as String? ?? '',
     );
   }
@@ -101,8 +107,28 @@ class Task {
       'recurrence': recurrence.name,
       'subtasks': subtasks.map((e) => e.toJson()).toList(),
       'completed': completed,
-      'completedAt': completedAt?.toIso8601String(),
-      'createdAt': createdAt.toIso8601String(),
+      'completed_at': completedAt?.toIso8601String(),
+      'created_at': createdAt.toIso8601String(),
+      'notes': notes,
+    };
+  }
+
+  Map<String, dynamic> toDbJson() {
+    // Exclude subtasks when pushing to the main tasks table in Supabase.
+    // If you need to store subtasks, they should typically go to a related table
+    // or a correctly typed JSONB column. For now, we omit it to prevent insert errors.
+    return {
+      'id': id,
+      // 'user_id' is omitted to let Supabase Auth handle it via default auth.uid()
+      'title': title,
+      'description': description,
+      'priority': priority.name,
+      'category': category,
+      'deadline': deadline?.toIso8601String(),
+      'recurrence': recurrence.name,
+      'completed': completed,
+      'completed_at': completedAt?.toIso8601String(),
+      'created_at': createdAt.toIso8601String(),
       'notes': notes,
     };
   }

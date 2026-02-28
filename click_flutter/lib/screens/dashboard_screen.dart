@@ -22,15 +22,7 @@ class DashboardScreen extends ConsumerStatefulWidget {
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   TaskFilter _currentFilter = TaskFilter.today;
   String? _focusedTaskId;
-
-  String _getGreeting() {
-    final hour = DateTime.now().hour;
-    if (hour < 12 && hour > 6) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    if (hour < 23) return 'Good evening';
-    return 'Lets rest now';
-  }
-
+  
   void _showTaskBottomSheet([Task? task]) {
     showModalBottomSheet(
       context: context,
@@ -110,7 +102,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final tasksAsync = ref.watch(taskProvider);
 
     return Scaffold(
-     
       body: tasksAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text('Error: $err')),
@@ -144,10 +135,33 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     children: [
                       Row(
                         children: [
-                          Text(
-                            _getGreeting(),
-                            style: Theme.of(context).textTheme.headlineSmall
-                                ?.copyWith(fontWeight: FontWeight.bold),
+                          GestureDetector(
+                            onTap: () => _showTaskBottomSheet(),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(LucideIcons.plus, size: 20, color: Colors.white),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Add',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color:Colors.white
+
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                           const Spacer(),
                           IconButton(
@@ -157,17 +171,24 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                   : LucideIcons.sun,
                             ),
                             onPressed: () {
-                              final isLight = Theme.of(context).brightness == Brightness.light;
+                              final isLight =
+                                  Theme.of(context).brightness ==
+                                  Brightness.light;
                               ref
                                   .read(themeProvider.notifier)
-                                  .setThemeMode(isLight ? ThemeMode.dark : ThemeMode.light);
+                                  .setThemeMode(
+                                    isLight ? ThemeMode.dark : ThemeMode.light,
+                                  );
                             },
                           ),
                         ],
                       ),
+                      const SizedBox(height: 8),
                       Text(
-                        totalPending == 0 ? "You're all caught up!" : 'You have ${pendingTasks.length} pending task${pendingTasks.length == 1 ? '' : 's'}',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        totalPending == 0
+                            ? "You're all caught up!"
+                            : 'You have ${pendingTasks.length} pending task${pendingTasks.length == 1 ? '' : 's'}',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
@@ -290,7 +311,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       'Completed',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 18,
+                        fontSize: 16,
                       ),
                     ),
                   ),
@@ -311,24 +332,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ],
           );
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showTaskBottomSheet(),
-        child: Container(
-          width: 60,
-          height: 60,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            gradient: Theme.of(context).brightness == Brightness.light
-                ? const LinearGradient(
-                    colors: [Color(0xFF10B981), Color(0xFF047857)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  )
-                : null,
-          ),
-          child: const Icon(LucideIcons.plus),
-        ),
       ),
     );
   }

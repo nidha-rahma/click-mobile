@@ -72,7 +72,7 @@ class _PomodoroTimerState extends State<PomodoroTimer> {
               children: [
                 Text(
                   "Focus Timer",
-                  style: Theme.of(context).textTheme.titleLarge,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const Spacer(),
                 IconButton(
@@ -96,7 +96,7 @@ class _PomodoroTimerState extends State<PomodoroTimer> {
                   height: 120,
                   child: CircularProgressIndicator(
                     value: _secondsRemaining / defaultTime,
-                    strokeWidth: 8,
+                    strokeWidth: 6,
                     backgroundColor: Theme.of(
                       context,
                     ).colorScheme.surfaceContainerHighest,

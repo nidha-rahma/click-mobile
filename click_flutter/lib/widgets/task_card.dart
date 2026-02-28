@@ -5,6 +5,7 @@ import '../models/task.dart';
 class TaskCard extends StatefulWidget {
   final Task task;
   final ValueChanged<bool?> onToggle;
+  final VoidCallback onTap;
   final VoidCallback onFocus;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
@@ -14,6 +15,7 @@ class TaskCard extends StatefulWidget {
     super.key,
     required this.task,
     required this.onToggle,
+    required this.onTap,
     required this.onFocus,
     required this.onEdit,
     required this.onDelete,
@@ -25,8 +27,6 @@ class TaskCard extends StatefulWidget {
 }
 
 class _TaskCardState extends State<TaskCard> {
-  bool _expanded = false;
-
   Widget _buildTimeLeft(DateTime deadline) {
     final now = DateTime.now();
     final diff = deadline.difference(now);
@@ -72,27 +72,18 @@ class _TaskCardState extends State<TaskCard> {
 
   @override
   Widget build(BuildContext context) {
-    final hasSubtasks = widget.task.subtasks.isNotEmpty;
-
     return GestureDetector(
-      onTap: () {
-        if (hasSubtasks) {
-          setState(() {
-            _expanded = !_expanded;
-          });
-        } else {
-          widget.onToggle(!widget.task.completed);
-        }
-      },
+      onTap: widget.onTap,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFF13151A), // Dark surface color matching image
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: Colors.white.withValues(alpha: 0.05),
-            width: 1,
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.1),
           ),
         ),
         child: Column(
@@ -109,7 +100,7 @@ class _TaskCardState extends State<TaskCard> {
                     height: 22,
                     margin: const EdgeInsets.only(top: 2),
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
+                      borderRadius: BorderRadius.circular(6),
                       border: Border.all(
                         color: widget.task.completed
                             ? const Color(0xFF10B981)
@@ -141,9 +132,8 @@ class _TaskCardState extends State<TaskCard> {
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                                 color: widget.task.completed
-                                    ? Colors.white54
-                                    : Colors.white,
-                            
+                                    ? Theme.of(context).colorScheme.onSurface
+                                    : Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                           ),
@@ -152,28 +142,34 @@ class _TaskCardState extends State<TaskCard> {
                             children: [
                               GestureDetector(
                                 onTap: widget.onFocus,
-                                child: const Icon(
+                                child: Icon(
                                   LucideIcons.clock,
                                   size: 18,
-                                  color: Color(0xFF94A3B8),
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
                                 ),
                               ),
                               const SizedBox(width: 16),
                               GestureDetector(
                                 onTap: widget.onEdit,
-                                child: const Icon(
+                                child: Icon(
                                   LucideIcons.edit3,
                                   size: 18,
-                                  color: Color(0xFF94A3B8),
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
                                 ),
                               ),
                               const SizedBox(width: 16),
                               GestureDetector(
                                 onTap: widget.onDelete,
-                                child: const Icon(
+                                child: Icon(
                                   LucideIcons.trash2,
                                   size: 18,
-                                  color: Color(0xFF94A3B8),
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
                                 ),
                               ),
                             ],
@@ -189,15 +185,21 @@ class _TaskCardState extends State<TaskCard> {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.06),
+                              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.10),
                               borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.15),
+                                width: 1,
+                              ),
                             ),
                             child: Text(
                               widget.task.category,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
-                                color: Color(0xFFE2E8F0),
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                           ),
@@ -212,33 +214,6 @@ class _TaskCardState extends State<TaskCard> {
                 ),
               ],
             ),
-            if (_expanded && hasSubtasks) ...[
-              const SizedBox(height: 16),
-              const Divider(color: Colors.white10, height: 1),
-              const SizedBox(height: 8),
-              ...widget.task.subtasks.map((subtask) {
-                return CheckboxListTile(
-                  title: Text(
-                    subtask.title,
-                    style: TextStyle(
-                      color: Colors.white70,
-                      decoration: subtask.completed
-                          ? TextDecoration.lineThrough
-                          : null,
-                    ),
-                  ),
-                  value: subtask.completed,
-                  onChanged: (val) {
-                    final updatedSubtask = subtask.copyWith(completed: val);
-                    widget.onSubtaskToggle(updatedSubtask);
-                  },
-                  controlAffinity: ListTileControlAffinity.leading,
-                  contentPadding: EdgeInsets.zero,
-                  dense: true,
-                  activeColor: const Color(0xFF10B981),
-                );
-              }),
-            ],
           ],
         ),
       ),

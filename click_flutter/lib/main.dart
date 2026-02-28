@@ -35,7 +35,7 @@ class MainApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,
-      home: const DashboardScreen(),
+      home: SafeArea(child: const DashboardScreen()),
       debugShowCheckedModeBanner: false,
     );
   }

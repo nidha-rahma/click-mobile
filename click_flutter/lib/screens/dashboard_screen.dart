@@ -25,9 +25,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   String _getGreeting() {
     final hour = DateTime.now().hour;
-    if (hour < 12) return 'Good morning';
+    if (hour < 12 && hour > 6) return 'Good morning';
     if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
+    if (hour < 23) return 'Good evening';
+    return 'Lets rest now';
   }
 
   void _showTaskBottomSheet([Task? task]) {
@@ -109,27 +110,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final tasksAsync = ref.watch(taskProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'TaskMate',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(
-              Theme.of(context).brightness == Brightness.light
-                  ? LucideIcons.moon
-                  : LucideIcons.sun,
-            ),
-            onPressed: () {
-              final isLight = Theme.of(context).brightness == Brightness.light;
-              ref
-                  .read(themeProvider.notifier)
-                  .setThemeMode(isLight ? ThemeMode.dark : ThemeMode.light);
-            },
-          ),
-        ],
-      ),
+     
       body: tasksAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text('Error: $err')),
@@ -161,13 +142,31 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        _getGreeting(),
-                        style: Theme.of(context).textTheme.headlineSmall
-                            ?.copyWith(fontWeight: FontWeight.bold),
+                      Row(
+                        children: [
+                          Text(
+                            _getGreeting(),
+                            style: Theme.of(context).textTheme.headlineSmall
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          const Spacer(),
+                          IconButton(
+                            icon: Icon(
+                              Theme.of(context).brightness == Brightness.light
+                                  ? LucideIcons.moon
+                                  : LucideIcons.sun,
+                            ),
+                            onPressed: () {
+                              final isLight = Theme.of(context).brightness == Brightness.light;
+                              ref
+                                  .read(themeProvider.notifier)
+                                  .setThemeMode(isLight ? ThemeMode.dark : ThemeMode.light);
+                            },
+                          ),
+                        ],
                       ),
                       Text(
-                        'You have ${pendingTasks.length} pending tasks',
+                        totalPending == 0 ? "You're all caught up!" : 'You have ${pendingTasks.length} pending task${pendingTasks.length == 1 ? '' : 's'}',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
